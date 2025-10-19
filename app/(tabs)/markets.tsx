@@ -27,6 +27,8 @@ export default function MarketsScreen() {
     const [tradeModalVisible, setTradeModalVisible] = useState(false);
     const [shares, setShares] = useState('100');
     const [balance, setBalance] = useState(0);
+    const [expandedEvents, setExpandedEvents] = useState<Set<string>>(new Set());
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
     useEffect(() => {
         loadMarkets();
@@ -103,21 +105,65 @@ export default function MarketsScreen() {
         }
     };
 
+    const toggleEventExpanded = (eventId: string) => {
+        setExpandedEvents((prev) => {
+            const newSet = new Set(prev);
+            if (newSet.has(eventId)) {
+                newSet.delete(eventId);
+            } else {
+                newSet.add(eventId);
+            }
+            return newSet;
+        });
+    };
+
+    // Get all unique categories
+    const getCategories = () => {
+        const categorySet = new Set<string>();
+        events.forEach(event => {
+            if (event.tags && event.tags.length > 0) {
+                event.tags.forEach(tag => categorySet.add(tag.label));
+            }
+        });
+        return Array.from(categorySet).sort();
+    };
+
     const renderMarket = ({ item: event }: { item: Event }) => {
         if (!event.markets || event.markets.length === 0) return null;
 
+        const isExpanded = expandedEvents.has(event.id);
+        const hasMultipleMarkets = event.markets.length > 1;
+
         return (
             <View style={styles.eventCard}>
-                <Text style={styles.eventTitle}>{event.title}</Text>
-                {event.markets.map((market) => {
-                    const outcomes = PolymarketAPI.parseOutcomes(market.outcomes);
+                {hasMultipleMarkets ? (
+                    <TouchableOpacity
+                        style={styles.eventHeader}
+                        onPress={() => toggleEventExpanded(event.id)}
+                        activeOpacity={0.7}
+                    >
+                        <View style={styles.eventHeaderContent}>
+                            <Text style={styles.eventTitle}>{event.title}</Text>
+                            <Text style={styles.marketCount}>{event.markets.length} markets</Text>
+                        </View>
+                        <Text style={styles.expandIcon}>{isExpanded ? '▼' : '▶'}</Text>
+                    </TouchableOpacity>
+                ) : (
+                    <View style={styles.eventHeaderSingle}>
+                        <Text style={styles.eventTitleSingle}>{event.title}</Text>
+                    </View>
+                )}
+
+                {(isExpanded || !hasMultipleMarkets) && event.markets.map((market) => {
                     const prices = PolymarketAPI.parseOutcomePrices(market.outcomePrices);
                     const yesPrice = prices[0] || 0.5;
                     const noPrice = prices[1] || 0.5;
 
                     return (
                         <View key={market.id} style={styles.marketCard}>
-                            <Text style={styles.marketQuestion}>{market.question}</Text>
+                            {hasMultipleMarkets && (
+                                <Text style={styles.marketQuestion}>{market.question}</Text>
+                            )}
                             <View style={styles.pricesContainer}>
                                 <TouchableOpacity
                                     style={[styles.priceButton, styles.yesButton]}
@@ -221,6 +267,24 @@ export default function MarketsScreen() {
         );
     }
 
+    const categories = getCategories();
+
+    const filteredEvents = events.filter((event) => {
+        // Filter by category
+        if (selectedCategory) {
+            const hasCategory = event.tags?.some(tag => tag.label === selectedCategory);
+            if (!hasCategory) return false;
+        }
+
+        // Filter by search
+        if (!searchQuery.trim()) return true;
+        const query = searchQuery.toLowerCase();
+        return (
+            event.title.toLowerCase().includes(query) ||
+            event.markets.some((market) => market.question.toLowerCase().includes(query))
+        );
+    });
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -228,13 +292,71 @@ export default function MarketsScreen() {
                 <Text style={styles.balanceHeader}>Balance: ${balance.toFixed(2)}</Text>
             </View>
 
+            <View style={styles.searchContainer}>
+                <TextInput
+                    style={styles.searchInput}
+                    placeholder="Search markets..."
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    placeholderTextColor="#999"
+                />
+                {searchQuery.length > 0 && (
+                    <TouchableOpacity
+                        style={styles.clearButton}
+                        onPress={() => setSearchQuery('')}
+                    >
+                        <Text style={styles.clearButtonText}>✕</Text>
+                    </TouchableOpacity>
+                )}
+            </View>
+
+            {categories.length > 0 && (
+                <View style={styles.categoriesContainer}>
+                    <FlatList
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        data={[null, ...categories]}
+                        keyExtractor={(item, index) => item || 'all'}
+                        renderItem={({ item }) => (
+                            <TouchableOpacity
+                                style={[
+                                    styles.categoryChip,
+                                    selectedCategory === item && styles.categoryChipActive,
+                                ]}
+                                onPress={() => setSelectedCategory(item)}
+                            >
+                                <Text
+                                    style={[
+                                        styles.categoryChipText,
+                                        selectedCategory === item && styles.categoryChipTextActive,
+                                    ]}
+                                >
+                                    {item || 'All'}
+                                </Text>
+                            </TouchableOpacity>
+                        )}
+                        contentContainerStyle={styles.categoriesList}
+                    />
+                </View>
+            )}
+
             <FlatList
-                data={events}
+                data={filteredEvents}
                 renderItem={renderMarket}
                 keyExtractor={(item) => item.id}
                 contentContainerStyle={styles.list}
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                }
+                ListEmptyComponent={
+                    searchQuery ? (
+                        <View style={styles.emptyContainer}>
+                            <Text style={styles.emptyText}>No markets found</Text>
+                            <Text style={styles.emptySubtext}>
+                                Try a different search term
+                            </Text>
+                        </View>
+                    ) : null
                 }
             />
 
@@ -277,22 +399,54 @@ const styles = StyleSheet.create({
     eventCard: {
         backgroundColor: '#fff',
         borderRadius: 12,
-        padding: 16,
         marginBottom: 16,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 3,
+        overflow: 'hidden',
+    },
+    eventHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 16,
+        paddingBottom: 12,
+    },
+    eventHeaderContent: {
+        flex: 1,
+    },
+    eventHeaderSingle: {
+        padding: 16,
+        paddingBottom: 8,
     },
     eventTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        marginBottom: 12,
         color: '#333',
+        marginBottom: 4,
+    },
+    eventTitleSingle: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#333',
+        marginBottom: 8,
+    },
+    marketCount: {
+        fontSize: 12,
+        color: '#666',
+        marginTop: 2,
+    },
+    expandIcon: {
+        fontSize: 14,
+        color: '#666',
+        marginLeft: 12,
     },
     marketCard: {
         marginBottom: 12,
+        paddingHorizontal: 16,
+        paddingBottom: 8,
     },
     marketQuestion: {
         fontSize: 14,
@@ -412,6 +566,73 @@ const styles = StyleSheet.create({
         color: '#0066FF',
         fontSize: 16,
         fontWeight: '600',
+    },
+    searchContainer: {
+        backgroundColor: '#fff',
+        marginHorizontal: 16,
+        marginBottom: 16,
+        marginTop: 8,
+        borderRadius: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 12,
+        borderWidth: 1,
+        borderColor: '#ddd',
+    },
+    searchInput: {
+        flex: 1,
+        padding: 12,
+        fontSize: 16,
+        color: '#333',
+    },
+    clearButton: {
+        padding: 8,
+    },
+    clearButtonText: {
+        fontSize: 18,
+        color: '#999',
+    },
+    emptyContainer: {
+        alignItems: 'center',
+        paddingVertical: 48,
+    },
+    emptyText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#666',
+        marginBottom: 8,
+    },
+    emptySubtext: {
+        fontSize: 14,
+        color: '#999',
+    },
+    categoriesContainer: {
+        marginBottom: 16,
+    },
+    categoriesList: {
+        paddingHorizontal: 16,
+        gap: 8,
+    },
+    categoryChip: {
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        borderRadius: 20,
+        backgroundColor: '#f5f5f5',
+        marginRight: 8,
+        borderWidth: 1,
+        borderColor: '#e0e0e0',
+    },
+    categoryChipActive: {
+        backgroundColor: '#0066FF',
+        borderColor: '#0066FF',
+    },
+    categoryChipText: {
+        fontSize: 14,
+        color: '#666',
+        fontWeight: '600',
+    },
+    categoryChipTextActive: {
+        color: '#fff',
     },
 });
 

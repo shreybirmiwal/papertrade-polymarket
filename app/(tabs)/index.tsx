@@ -29,46 +29,6 @@ export default function HomeScreen() {
         <Text style={styles.balanceHint}>Virtual money for practice trading</Text>
       </View>
 
-      <View style={styles.infoSection}>
-        <Text style={styles.sectionTitle}>How it Works</Text>
-
-        <View style={styles.step}>
-          <View style={styles.stepNumber}>
-            <Text style={styles.stepNumberText}>1</Text>
-          </View>
-          <View style={styles.stepContent}>
-            <Text style={styles.stepTitle}>Browse Markets</Text>
-            <Text style={styles.stepDescription}>
-              Explore real Polymarket prediction markets
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.step}>
-          <View style={styles.stepNumber}>
-            <Text style={styles.stepNumberText}>2</Text>
-          </View>
-          <View style={styles.stepContent}>
-            <Text style={styles.stepTitle}>Make Paper Trades</Text>
-            <Text style={styles.stepDescription}>
-              Buy YES or NO positions with virtual money
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.step}>
-          <View style={styles.stepNumber}>
-            <Text style={styles.stepNumberText}>3</Text>
-          </View>
-          <View style={styles.stepContent}>
-            <Text style={styles.stepTitle}>Track Performance</Text>
-            <Text style={styles.stepDescription}>
-              Monitor your P&L and close positions
-            </Text>
-          </View>
-        </View>
-      </View>
-
       <View style={styles.buttons}>
         <TouchableOpacity
           style={styles.primaryButton}
@@ -135,50 +95,6 @@ const styles = StyleSheet.create({
   balanceHint: {
     fontSize: 12,
     color: '#999',
-  },
-  infoSection: {
-    padding: 20,
-    paddingTop: 0,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    color: '#333',
-  },
-  step: {
-    flexDirection: 'row',
-    marginBottom: 20,
-    backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 12,
-  },
-  stepNumber: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#0066FF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  stepNumberText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  stepContent: {
-    flex: 1,
-  },
-  stepTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 4,
-    color: '#333',
-  },
-  stepDescription: {
-    fontSize: 14,
-    color: '#666',
   },
   buttons: {
     padding: 20,

@@ -1,6 +1,9 @@
 import { Event, Market } from '@/types/polymarket';
+import { Platform } from 'react-native';
 
 const BASE_URL = 'https://gamma-api.polymarket.com';
+// Use CORS proxy for web to avoid CORS issues
+const PROXY_URL = Platform.OS === 'web' ? 'https://corsproxy.io/?' : '';
 
 export class PolymarketAPI {
     /**
@@ -9,7 +12,7 @@ export class PolymarketAPI {
     static async getActiveMarkets(limit: number = 50, offset: number = 0): Promise<Event[]> {
         try {
             const response = await fetch(
-                `${BASE_URL}/events?closed=false&active=true&limit=${limit}&offset=${offset}`
+                `${PROXY_URL}${BASE_URL}/events?closed=false&active=true&limit=${limit}&offset=${offset}`
             );
 
             if (!response.ok) {
@@ -29,7 +32,7 @@ export class PolymarketAPI {
      */
     static async getEventBySlug(slug: string): Promise<Event> {
         try {
-            const response = await fetch(`${BASE_URL}/events/slug/${slug}`);
+            const response = await fetch(`${PROXY_URL}${BASE_URL}/events/slug/${slug}`);
 
             if (!response.ok) {
                 throw new Error(`API Error: ${response.status}`);
@@ -47,7 +50,7 @@ export class PolymarketAPI {
      */
     static async searchMarkets(query: string): Promise<{ events: Event[] }> {
         try {
-            const response = await fetch(`${BASE_URL}/public-search?q=${encodeURIComponent(query)}`);
+            const response = await fetch(`${PROXY_URL}${BASE_URL}/public-search?q=${encodeURIComponent(query)}`);
 
             if (!response.ok) {
                 throw new Error(`API Error: ${response.status}`);
