@@ -74,7 +74,6 @@ export default function PositionsScreen() {
 
             console.log('🟡 User confirmed close, processing...');
             try {
-                setRefreshing(true);
                 console.log('📞 Calling PaperTradingService.closePosition with:', {
                     tradeId: trade.id,
                     closePrice: trade.currentPrice,
@@ -101,7 +100,6 @@ export default function PositionsScreen() {
                 console.error('Error details:', JSON.stringify(error, null, 2));
                 window.alert(`Error: Failed to close position: ${error instanceof Error ? error.message : 'Unknown error'}`);
             } finally {
-                setRefreshing(false);
                 console.log('🔵 closePosition complete');
             }
         } else {
@@ -117,7 +115,6 @@ export default function PositionsScreen() {
                         onPress: async () => {
                             console.log('🟡 User confirmed close, processing...');
                             try {
-                                setRefreshing(true);
                                 console.log('📞 Calling PaperTradingService.closePosition with:', {
                                     tradeId: trade.id,
                                     closePrice: trade.currentPrice,
@@ -144,7 +141,6 @@ export default function PositionsScreen() {
                                 console.error('Error details:', JSON.stringify(error, null, 2));
                                 Alert.alert('Error', `Failed to close position: ${error instanceof Error ? error.message : 'Unknown error'}`);
                             } finally {
-                                setRefreshing(false);
                                 console.log('🔵 closePosition complete');
                             }
                         },
