@@ -19,9 +19,9 @@ app.get('/api/polymarket/*', async (req, res) => {
         const apiPath = req.params[0]; // Get everything after /api/polymarket/
         const queryString = req.url.split('?')[1] || '';
         const fullUrl = `https://gamma-api.polymarket.com/${apiPath}${queryString ? '?' + queryString : ''}`;
-        
+
         console.log(`🔄 Proxying request to: ${fullUrl}`);
-        
+
         const response = await fetch(fullUrl, {
             headers: {
                 'User-Agent': 'PolyPaper/1.0',
@@ -31,21 +31,21 @@ app.get('/api/polymarket/*', async (req, res) => {
 
         if (!response.ok) {
             console.error(`❌ API Error: ${response.status} ${response.statusText}`);
-            return res.status(response.status).json({ 
+            return res.status(response.status).json({
                 error: `API Error: ${response.status}`,
-                message: response.statusText 
+                message: response.statusText
             });
         }
 
         const data = await response.json();
         console.log(`✅ Successfully proxied request`);
         res.json(data);
-        
+
     } catch (error) {
         console.error('❌ Proxy error:', error);
-        res.status(500).json({ 
+        res.status(500).json({
             error: 'Internal server error',
-            message: error.message 
+            message: error.message
         });
     }
 });

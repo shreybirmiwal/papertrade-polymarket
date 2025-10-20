@@ -6,7 +6,6 @@ A simple Express.js backend that acts as a proxy for the Polymarket API, solving
 
 1. **Install dependencies:**
    ```bash
-   cd backend
    npm install
    ```
 
@@ -15,9 +14,10 @@ A simple Express.js backend that acts as a proxy for the Polymarket API, solving
    npm start
    ```
 
-3. **Start the frontend:**
+3. **Start the frontend (in another terminal):**
    ```bash
-   cd ..
+   cd ../frontend
+   npm install
    npm run web
    ```
 

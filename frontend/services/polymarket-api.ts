@@ -1,38 +1,32 @@
 import { Event, Market } from '@/types/polymarket';
 import { Platform } from 'react-native';
 
-const BASE_URL = 'https://gamma-api.polymarket.com';
-// Use multiple CORS proxies as fallbacks for web to avoid CORS issues
-const PROXY_URLS = Platform.OS === 'web' ? [
-    'https://api.allorigins.win/raw?url=',
-    'https://corsproxy.io/?',
-    'https://cors-anywhere.herokuapp.com/',
-] : [''];
+// Use backend proxy for web, direct API for mobile
+const API_BASE_URL = Platform.OS === 'web' 
+    ? (process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3001/api/polymarket')  // Backend proxy
+    : 'https://gamma-api.polymarket.com';     // Direct API for mobile
 
 export class PolymarketAPI {
     /**
-     * Try multiple CORS proxies if one fails
+     * Make API request with proper error handling
      */
-    private static async fetchWithFallback(url: string): Promise<Response> {
-        for (let i = 0; i < PROXY_URLS.length; i++) {
-            try {
-                const proxyUrl = PROXY_URLS[i] + (Platform.OS === 'web' ? encodeURIComponent(BASE_URL + url) : BASE_URL + url);
-                console.log(`🔄 Trying proxy ${i + 1}/${PROXY_URLS.length}: ${PROXY_URLS[i]}`);
-                
-                const response = await fetch(proxyUrl);
-                
-                if (response.ok) {
-                    console.log(`✅ Success with proxy ${i + 1}`);
-                    return response;
-                } else {
-                    console.log(`❌ Proxy ${i + 1} failed with status: ${response.status}`);
-                }
-            } catch (error) {
-                console.log(`❌ Proxy ${i + 1} error:`, error);
-            }
+    private static async makeRequest(url: string): Promise<Response> {
+        const fullUrl = `${API_BASE_URL}${url}`;
+        console.log(`🔄 Making API request to: ${fullUrl}`);
+
+        const response = await fetch(fullUrl, {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status}`);
         }
-        
-        throw new Error('All CORS proxies failed');
+
+        console.log(`✅ API request successful`);
+        return response;
     }
 
     /**
@@ -40,12 +34,10 @@ export class PolymarketAPI {
      */
     static async getActiveMarkets(limit: number = 50, offset: number = 0): Promise<Event[]> {
         try {
-            const response = await this.fetchWithFallback(
+            const response = await this.makeRequest(
                 `/events?closed=false&active=true&limit=${limit}&offset=${offset}`
             );
-
-            const data = await response.json();
-            return data;
+            return await response.json();
         } catch (error) {
             console.error('Error fetching markets:', error);
             throw error;
@@ -57,7 +49,7 @@ export class PolymarketAPI {
      */
     static async getEventBySlug(slug: string): Promise<Event> {
         try {
-            const response = await this.fetchWithFallback(`/events/slug/${slug}`);
+            const response = await this.makeRequest(`/events/slug/${slug}`);
             return await response.json();
         } catch (error) {
             console.error('Error fetching event:', error);
@@ -70,7 +62,7 @@ export class PolymarketAPI {
      */
     static async searchMarkets(query: string): Promise<{ events: Event[] }> {
         try {
-            const response = await this.fetchWithFallback(`/public-search?q=${encodeURIComponent(query)}`);
+            const response = await this.makeRequest(`/public-search?q=${encodeURIComponent(query)}`);
             return await response.json();
         } catch (error) {
             console.error('Error searching markets:', error);

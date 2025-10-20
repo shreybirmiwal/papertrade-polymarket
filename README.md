@@ -1,51 +1,97 @@
-# Welcome to your Expo app 👋
+# 📊 PolyPaper - Paper Trading for Polymarket
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A React Native app that lets you practice trading on Polymarket prediction markets with virtual money. Perfect for learning how prediction markets work without risking real funds!
 
-## Get started
+## 🏗️ Project Structure
 
-1. Install dependencies
+This repository contains two separate applications that can be deployed independently:
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+PolyPaper/
+├── frontend/          # React Native/Expo app
+├── backend-separate/  # Express.js API proxy
+└── README.md         # This file
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## 🚀 Quick Start
 
-## Learn more
+### Option 1: Run Both Locally (Recommended for Development)
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+# Terminal 1: Start the backend
+cd backend-separate
+npm install
+npm start
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+# Terminal 2: Start the frontend
+cd frontend
+npm install
+npm run web
+```
 
-## Join the community
+### Option 2: Run Frontend Only (Mobile)
 
-Join our community of developers creating universal apps.
+```bash
+cd frontend
+npm install
+npm run ios    # or npm run android
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
-# papertrade-polymarket
+## 📱 Frontend (React Native/Expo)
+
+The main application with:
+- **Markets Screen**: Browse and trade on prediction markets
+- **Portfolio Screen**: Track positions and P&L
+- **Positions Screen**: Manage open/closed positions
+- **Auto-refresh**: Real-time updates across all screens
+
+**Location**: `frontend/`  
+**Documentation**: [frontend/POLYPAPER_README.md](frontend/POLYPAPER_README.md)
+
+## 🔧 Backend (Express.js API Proxy)
+
+A simple backend that:
+- Proxies Polymarket API requests
+- Solves CORS issues for web version
+- Provides reliable API access
+
+**Location**: `backend-separate/`  
+**Documentation**: [backend-separate/README.md](backend-separate/README.md)
+
+## 🌐 Deployment
+
+### Frontend Deployment
+- **Expo**: `expo publish` or EAS Build
+- **Web**: Deploy to Vercel, Netlify, etc.
+- **Mobile**: App Store, Google Play Store
+
+### Backend Deployment
+- **Railway**: Connect GitHub repo, set root to `backend-separate`
+- **Heroku**: Deploy `backend-separate` folder
+- **Vercel**: Deploy as serverless functions
+- **Your Server**: Run `npm start` in `backend-separate`
+
+## 🔗 Environment Variables
+
+For production deployment, set:
+- `EXPO_PUBLIC_API_URL`: Backend URL (e.g., `https://your-backend.railway.app/api/polymarket`)
+
+## 📖 Features
+
+- 📈 **Real-time Markets**: Live Polymarket data
+- 💼 **Portfolio Tracking**: Monitor your virtual trades
+- 📊 **P&L Charts**: Visualize your performance
+- 🔄 **Auto-refresh**: No manual reloading needed
+- 📱 **Cross-platform**: Works on iOS, Android, and Web
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test both frontend and backend
+5. Submit a pull request
+
+## 📄 License
+
+MIT License - see LICENSE file for details

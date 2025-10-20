@@ -24,28 +24,58 @@ A React Native app that lets you practice trading on Polymarket prediction marke
 
 ## 🚀 Getting Started
 
+### Prerequisites
+- Node.js (v16 or higher)
+- npm or yarn
+
 ### Installation
 
 ```bash
-# Install dependencies
+# Install frontend dependencies
 npm install
-
-# Start the app
-npm start
 ```
 
-### Run on Device/Simulator
+### Running the App
 
+#### For Web (Requires Backend)
+```bash
+# Terminal 1: Start backend (from root directory)
+cd ../backend-separate
+npm install
+npm start
+
+# Terminal 2: Start frontend
+npm run web
+```
+
+#### For Mobile (No Backend Required)
 ```bash
 # iOS
 npm run ios
 
 # Android
 npm run android
-
-# Web
-npm run web
 ```
+
+> **Note:** The web version requires the backend to be running to avoid CORS issues. Mobile versions work directly with the Polymarket API.
+
+## 🏗️ Architecture
+
+### Frontend (React Native/Expo)
+- **Markets Screen**: Browse and trade on prediction markets
+- **Portfolio Screen**: Track positions and P&L
+- **Positions Screen**: Manage open/closed positions
+- **Auto-refresh**: Real-time updates across all screens
+
+### Backend (Express.js)
+- **API Proxy**: Handles CORS issues for web version
+- **Simple & Fast**: Minimal overhead, just proxies requests
+- **Deployable**: Easy to deploy to Railway, Heroku, or Vercel
+
+### Data Storage
+- **Local Storage**: All trades and balance stored locally
+- **No Database**: Simple file-based storage using AsyncStorage
+- **Offline Capable**: Works without internet (except for market data)
 
 ## 📱 How to Use
 
