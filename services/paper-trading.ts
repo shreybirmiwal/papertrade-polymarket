@@ -255,6 +255,9 @@ export class PaperTradingService {
                 }
             } catch (error) {
                 console.error(`❌ Error updating trade ${trade.id} price:`, error);
+                // Use entry price as fallback when API fails
+                trade.currentPrice = trade.entryPrice;
+                console.log(`⚠️ Using entry price as fallback for trade ${trade.id}: ${trade.entryPrice}`);
             }
         }
 
