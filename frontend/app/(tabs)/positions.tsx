@@ -1,7 +1,6 @@
 import { usePortfolio } from '@/contexts/PortfolioContext';
 import { PaperTradingService } from '@/services/paper-trading';
 import { PaperTrade } from '@/types/polymarket';
-import { PositionsSkeleton } from '@/components/ui/skeleton';
 import React, { useState } from 'react';
 import {
     ActivityIndicator,
@@ -246,7 +245,12 @@ export default function PositionsScreen() {
     };
 
     if (!initialized && loading) {
-        return <PositionsSkeleton />;
+        return (
+            <View style={styles.centered}>
+                <ActivityIndicator size="large" color="#0066FF" />
+                <Text style={styles.loadingText}>Loading positions...</Text>
+            </View>
+        );
     }
 
     const baseTrades = showClosed
@@ -342,6 +346,11 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    loadingText: {
+        marginTop: 16,
+        fontSize: 16,
+        color: '#666',
     },
     header: {
         backgroundColor: '#fff',

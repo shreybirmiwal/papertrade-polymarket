@@ -1,7 +1,6 @@
 import { PnLChart } from '@/components/pnl-chart';
 import { usePortfolio } from '@/contexts/PortfolioContext';
 import { PaperTradingService, PnLSnapshot } from '@/services/paper-trading';
-import { PortfolioSkeleton } from '@/components/ui/skeleton';
 import React, { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
@@ -91,7 +90,12 @@ export default function PortfolioScreen() {
 
 
     if (!initialized && loading) {
-        return <PortfolioSkeleton />;
+        return (
+            <View style={styles.centered}>
+                <ActivityIndicator size="large" color="#0066FF" />
+                <Text style={styles.loadingText}>Loading portfolio...</Text>
+            </View>
+        );
     }
 
     return (
@@ -237,6 +241,11 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    loadingText: {
+        marginTop: 16,
+        fontSize: 16,
+        color: '#666',
     },
     header: {
         backgroundColor: '#fff',

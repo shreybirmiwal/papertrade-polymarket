@@ -7,9 +7,8 @@ interface PortfolioContextType {
     balance: number;
     pnlHistory: PnLSnapshot[];
     loading: boolean;
-    initialized: boolean;
     refreshing: boolean;
-    loadPortfolio: (force?: boolean) => Promise<void>;
+    loadPortfolio: () => Promise<void>;
     refreshPortfolio: () => Promise<void>;
     updateBalance: () => Promise<void>;
     clearPortfolio: () => Promise<void>;
@@ -25,25 +24,18 @@ export function PortfolioProvider({ children }: PortfolioProviderProps) {
     const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
     const [balance, setBalance] = useState(0);
     const [pnlHistory, setPnlHistory] = useState<PnLSnapshot[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [initialized, setInitialized] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
 
-    const loadPortfolio = async (force = false) => {
-        // If already initialized and not forcing, just do background refresh
-        if (initialized && !force) {
-            backgroundRefresh();
-            return;
-        }
-
-        setLoading(true);
+    const loadPortfolio = async () => {
         try {
+            setLoading(true);
             const [portfolioData, balanceData, historyData] = await Promise.all([
                 PaperTradingService.getPortfolio(),
                 PaperTradingService.getBalance(),
                 PaperTradingService.getFilteredPnLHistory('week')
             ]);
-            
+
             setPortfolio(portfolioData);
             setBalance(balanceData);
             setPnlHistory(historyData);
@@ -51,30 +43,21 @@ export function PortfolioProvider({ children }: PortfolioProviderProps) {
             console.error('Error loading portfolio:', error);
         } finally {
             setLoading(false);
-            setInitialized(true);
-        }
-    };
-
-    const backgroundRefresh = async () => {
-        try {
-            const [portfolioData, balanceData, historyData] = await Promise.all([
-                PaperTradingService.getPortfolio(),
-                PaperTradingService.getBalance(),
-                PaperTradingService.getFilteredPnLHistory('week')
-            ]);
-            
-            setPortfolio(portfolioData);
-            setBalance(balanceData);
-            setPnlHistory(historyData);
-        } catch (error) {
-            console.error('Background refresh failed:', error);
         }
     };
 
     const refreshPortfolio = async () => {
         try {
             setRefreshing(true);
-            await backgroundRefresh();
+            const [portfolioData, balanceData, historyData] = await Promise.all([
+                PaperTradingService.getPortfolio(),
+                PaperTradingService.getBalance(),
+                PaperTradingService.getFilteredPnLHistory('week')
+            ]);
+
+            setPortfolio(portfolioData);
+            setBalance(balanceData);
+            setPnlHistory(historyData);
         } catch (error) {
             console.error('Error refreshing portfolio:', error);
         } finally {
@@ -95,7 +78,7 @@ export function PortfolioProvider({ children }: PortfolioProviderProps) {
         try {
             setRefreshing(true);
             await PaperTradingService.clearAllTrades();
-            await loadPortfolio(true); // Force reload after clearing
+            await loadPortfolio();
         } catch (error) {
             console.error('Error clearing portfolio:', error);
         } finally {
@@ -113,7 +96,6 @@ export function PortfolioProvider({ children }: PortfolioProviderProps) {
         balance,
         pnlHistory,
         loading,
-        initialized,
         refreshing,
         loadPortfolio,
         refreshPortfolio,
