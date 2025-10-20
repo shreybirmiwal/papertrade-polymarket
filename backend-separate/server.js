@@ -10,8 +10,7 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
-// Serve static files from the React app build
-app.use(express.static(path.join(__dirname, '../web-build')));
+// Static file serving removed for Vercel deployment
 
 // Proxy endpoint for Polymarket API
 app.get('/api/polymarket/*', async (req, res) => {
@@ -55,9 +54,15 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Serve React app for all other routes
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../web-build/index.html'));
+// Root endpoint for Vercel
+app.get('/', (req, res) => {
+    res.json({ 
+        message: 'PolyPaper Backend API',
+        endpoints: {
+            health: '/api/health',
+            polymarket: '/api/polymarket/*'
+        }
+    });
 });
 
 app.listen(PORT, () => {

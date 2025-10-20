@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 
 // Use backend proxy for web, direct API for mobile
 const API_BASE_URL = Platform.OS === 'web' 
-    ? (process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3001/api/polymarket')  // Backend proxy
+    ? (process.env.EXPO_PUBLIC_API_URL || 'https://backend-separate-mqt88r4tr-shreybirmiwals-projects.vercel.app/api/polymarket')  // Deployed backend proxy
     : 'https://gamma-api.polymarket.com';     // Direct API for mobile
 
 export class PolymarketAPI {
