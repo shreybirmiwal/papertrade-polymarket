@@ -1,3 +1,4 @@
+import { usePortfolio } from '@/contexts/PortfolioContext';
 import { PaperTradingService } from '@/services/paper-trading';
 import { PolymarketAPI } from '@/services/polymarket-api';
 import { Event, Market, PositionSide } from '@/types/polymarket';
@@ -16,6 +17,7 @@ import {
 } from 'react-native';
 
 export default function MarketsScreen() {
+    const { balance, updateBalance, refreshPortfolio } = usePortfolio();
     const [events, setEvents] = useState<Event[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -26,19 +28,12 @@ export default function MarketsScreen() {
     } | null>(null);
     const [tradeModalVisible, setTradeModalVisible] = useState(false);
     const [shares, setShares] = useState('100');
-    const [balance, setBalance] = useState(0);
     const [expandedEvents, setExpandedEvents] = useState<Set<string>>(new Set());
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
     useEffect(() => {
         loadMarkets();
-        loadBalance();
     }, []);
-
-    const loadBalance = async () => {
-        const bal = await PaperTradingService.getBalance();
-        setBalance(bal);
-    };
 
     const loadMarkets = async () => {
         try {
@@ -56,7 +51,7 @@ export default function MarketsScreen() {
     const onRefresh = async () => {
         setRefreshing(true);
         await loadMarkets();
-        await loadBalance();
+        await updateBalance();
         setRefreshing(false);
     };
 
@@ -99,7 +94,8 @@ export default function MarketsScreen() {
             Alert.alert('Success', result.message);
             setTradeModalVisible(false);
             setShares('100');
-            await loadBalance();
+            // Refresh the entire portfolio to update all screens
+            await refreshPortfolio();
         } else {
             Alert.alert('Error', result.message);
         }

@@ -31,6 +31,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="positions"
+        options={{
+          title: 'Positions',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="list.bullet" color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="index"
         options={{
           href: null, // Hide from tabs
@@ -38,6 +45,12 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name="explore"
+        options={{
+          href: null, // Hide from tabs
+        }}
+      />
+      <Tabs.Screen
+        name="analytics"
         options={{
           href: null, // Hide from tabs
         }}
