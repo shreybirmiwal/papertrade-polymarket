@@ -1,5 +1,6 @@
 import { PnLChart } from '@/components/pnl-chart';
 import { PaperTradingService, PnLSnapshot } from '@/services/paper-trading';
+import { PortfolioSkeleton } from '@/components/ui/skeleton';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
     ActivityIndicator,
@@ -59,11 +60,7 @@ export default function AnalyticsScreen() {
     };
 
     if (loading) {
-        return (
-            <View style={styles.centered}>
-                <ActivityIndicator size="large" color="#0066FF" />
-            </View>
-        );
+        return <PortfolioSkeleton />;
     }
 
     return (

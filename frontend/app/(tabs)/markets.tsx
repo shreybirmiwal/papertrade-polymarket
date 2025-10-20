@@ -2,6 +2,7 @@ import { usePortfolio } from '@/contexts/PortfolioContext';
 import { PaperTradingService } from '@/services/paper-trading';
 import { PolymarketAPI } from '@/services/polymarket-api';
 import { Event, Market, PositionSide } from '@/types/polymarket';
+import { MarketsSkeleton } from '@/components/ui/skeleton';
 import React, { useEffect, useState } from 'react';
 import {
     ActivityIndicator,

@@ -1,6 +1,7 @@
 import { usePortfolio } from '@/contexts/PortfolioContext';
 import { PaperTradingService } from '@/services/paper-trading';
 import { PaperTrade } from '@/types/polymarket';
+import { PositionsSkeleton } from '@/components/ui/skeleton';
 import React, { useState } from 'react';
 import {
     ActivityIndicator,
@@ -16,7 +17,7 @@ import {
 type SortOption = 'recent' | 'pnl_high' | 'pnl_low';
 
 export default function PositionsScreen() {
-    const { portfolio, loading, refreshing, refreshPortfolio } = usePortfolio();
+    const { portfolio, loading, initialized, refreshing, refreshPortfolio } = usePortfolio();
     const [showClosed, setShowClosed] = useState(false);
     const [sortBy, setSortBy] = useState<SortOption>('recent');
 
@@ -244,12 +245,8 @@ export default function PositionsScreen() {
         );
     };
 
-    if (loading && !portfolio) {
-        return (
-            <View style={styles.centered}>
-                <ActivityIndicator size="large" color="#0066FF" />
-            </View>
-        );
+    if (!initialized && loading) {
+        return <PositionsSkeleton />;
     }
 
     const baseTrades = showClosed

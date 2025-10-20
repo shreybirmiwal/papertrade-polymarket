@@ -1,6 +1,7 @@
 import { PnLChart } from '@/components/pnl-chart';
 import { usePortfolio } from '@/contexts/PortfolioContext';
 import { PaperTradingService, PnLSnapshot } from '@/services/paper-trading';
+import { PortfolioSkeleton } from '@/components/ui/skeleton';
 import React, { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
@@ -16,7 +17,7 @@ import {
 type TimePeriod = 'day' | 'week' | 'month' | 'all';
 
 export default function PortfolioScreen() {
-    const { portfolio, balance, loading, refreshing, refreshPortfolio, clearPortfolio } = usePortfolio();
+    const { portfolio, balance, loading, initialized, refreshing, refreshPortfolio, clearPortfolio } = usePortfolio();
     const [timePeriod, setTimePeriod] = useState<TimePeriod>('week');
     const [filteredPnlHistory, setFilteredPnlHistory] = useState<PnLSnapshot[]>([]);
 
@@ -89,12 +90,8 @@ export default function PortfolioScreen() {
     };
 
 
-    if (loading && !portfolio) {
-        return (
-            <View style={styles.centered}>
-                <ActivityIndicator size="large" color="#0066FF" />
-            </View>
-        );
+    if (!initialized && loading) {
+        return <PortfolioSkeleton />;
     }
 
     return (
